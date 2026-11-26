@@ -7,7 +7,7 @@ eine CLI für die Analyse und ein durchgearbeitetes Beispielgerät. Alles so geb
 **nichts kaputtgeht**, was sich nicht reparieren lässt.
 
 > *English:* WRECK is a blueprint + CLI that lets humans and AI agents reverse-engineer and customise cheap Chinese
-> smartwatches they own, within EU interoperability law. Docs are in German; the CLI is plain Python 3.9+, no dependencies.
+> smartwatches they own, within EU interoperability law. Docs are in German; the CLI is plain Python 3.10+, no dependencies.
 
 ## Was es kann
 
