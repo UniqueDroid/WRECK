@@ -1,0 +1,33 @@
+# Alles Herstellermaterial und alle Rohdaten bleiben lokal (LEGAL.md).
+private/
+workbench/
+inbox/
+*.bin
+*.ufw
+*.img
+*.hex
+*.elf
+*.o
+*.so
+*.apk
+*.xapk
+*.apks
+*.dex
+*.smali
+*.jks
+*.keystore
+*.dump
+*.gzf
+*.gpr
+*.rep/
+ghidra-projects/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/

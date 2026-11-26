@@ -1,0 +1,20 @@
+# WRECK – Watch Reverse Engineering & Cracking Kit
+
+> Bauplan und CLI, mit dem Menschen und KI-Agenten günstige China-Smartwatches nachvollziehbar und im rechtlichen
+> Rahmen (DE/EU: § 69d/§ 69e UrhG, § 3 GeschGehG) untersuchen und anpassen. Herstellermaterial bleibt privat.
+
+## Einstieg
+- [AGENTS.md](AGENTS.md): Regeln und Ablauf für KI-Agenten
+- [LEGAL.md](LEGAL.md): was erlaubt ist, was nie ins Repo darf
+- [docs/PLAYBOOK.md](docs/PLAYBOOK.md): Phasen 0–6 mit Toren
+
+## Wissen
+- [docs/RECOVERY.md](docs/RECOVERY.md): Rückweg vor jedem Experiment
+- [docs/CHIPS.md](docs/CHIPS.md): Chipfamilien und Merkmale
+- [docs/APP-LAYER.md](docs/APP-LAYER.md): eigene App-Schicht statt Einzelpatches
+- [docs/EVIDENCE.md](docs/EVIDENCE.md): Statuswerte, Belegbuch, Berichte
+- [docs/TOOLS.md](docs/TOOLS.md): externe Werkzeuge
+- [docs/formats/jl-watchface.md](docs/formats/jl-watchface.md): JieLi-Zifferblattformat
+
+## Beispiel
+- [devices/m78-jl701n/](devices/m78-jl701n/README.md): M78 mit JieLi JL701N, Hardware-Fakten und Erfahrungen
