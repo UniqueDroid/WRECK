@@ -1,8 +1,7 @@
 """WRECK – Watch Reverse Engineering & Cracking Kit.
 
-Werkzeugkasten und Bauplan, mit dem Menschen und KI-Agenten günstige
-Smartwatches (vor allem aus China) nachvollziehbar und im rechtlichen Rahmen
-untersuchen und an die eigenen Wünsche anpassen.
+Toolkit and blueprint that lets humans and AI agents study cheap smartwatches
+(mostly from China) they own, in a traceable and lawful way, and adapt them.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

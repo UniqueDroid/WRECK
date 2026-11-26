@@ -1,7 +1,7 @@
-"""`wreck guard`: verhindert, dass Herstellermaterial, Schlüssel oder private Daten ins Repo gelangen.
+"""`wreck guard`: keeps vendor material, keys and private data out of the repo.
 
-Regeln siehe LEGAL.md. Der Prüfer ist absichtlich streng; berechtigte
-Ausnahmen (eigene Testbilder o. Ä.) kommen mit Begründung in `.wreckallow`.
+Rules: see LEGAL.md. The checker is deliberately strict; justified exceptions
+(your own test images etc.) go into `.wreckallow` with a reason.
 """
 from __future__ import annotations
 
@@ -11,41 +11,41 @@ import subprocess
 from pathlib import Path
 
 BLOCKED_EXT = {
-    ".bin": "Firmware/Rohdaten",
-    ".ufw": "Update-Container",
-    ".img": "Abbild",
-    ".hex": "Firmware (Intel-HEX)",
-    ".elf": "Programm",
-    ".o": "Objektdatei",
-    ".a": "Bibliothek",
-    ".so": "native Bibliothek",
-    ".apk": "Android-App",
-    ".xapk": "Android-App",
-    ".apks": "Android-App",
-    ".dex": "Android-Bytecode",
-    ".smali": "dekompilierter Android-Code",
-    ".jar": "Java-Archiv",
-    ".jks": "Signaturschlüssel",
-    ".keystore": "Signaturschlüssel",
-    ".p12": "Schlüssel",
-    ".pfx": "Schlüssel",
-    ".pem": "Schlüssel/Zertifikat",
-    ".key": "Schlüssel",
-    ".dump": "Speicherabzug",
-    ".gzf": "Ghidra-Projekt",
-    ".gpr": "Ghidra-Projekt",
-    ".rep": "Ghidra-Projekt",
+    ".bin": "firmware/raw data",
+    ".ufw": "update container",
+    ".img": "image",
+    ".hex": "firmware (Intel HEX)",
+    ".elf": "program",
+    ".o": "object file",
+    ".a": "library",
+    ".so": "native library",
+    ".apk": "Android app",
+    ".xapk": "Android app",
+    ".apks": "Android app",
+    ".dex": "Android bytecode",
+    ".smali": "decompiled Android code",
+    ".jar": "Java archive",
+    ".jks": "signing key",
+    ".keystore": "signing key",
+    ".p12": "key",
+    ".pfx": "key",
+    ".pem": "key/certificate",
+    ".key": "key",
+    ".dump": "memory dump",
+    ".gzf": "Ghidra project",
+    ".gpr": "Ghidra project",
+    ".rep": "Ghidra project",
 }
 
 CONTENT_RULES = [
-    (re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----"), "privater Schlüssel"),
-    (re.compile(rb"^\.class [^\n]*L[\w/$]+;", re.M), "Smali-Code (dekompiliert)"),
-    (re.compile(rb"/\* WARNING: (?:Removing unreachable block|Control flow encountered bad instruction)"), "Ghidra-Decompiler-Ausgabe"),
-    (re.compile(rb"Decompiled with CFR|// Decompiled by|jadx(?:-gui)? [0-9.]+ decompiled", re.I), "Java-Decompiler-Ausgabe"),
-    (re.compile(rb"Copyright[^\n]{0,40}(?:JIELI|Jieli|JieLi|Realtek|Actions Semiconductor|SiFli|Bluetrum)[^\n]{0,60}All Rights Reserved", re.I), "Hersteller-Quelltext ohne freie Lizenz"),
-    (re.compile(rb"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), "Cloud-Zugangsschlüssel"),
-    (re.compile(rb"\bgh[pousr]_[A-Za-z0-9]{36,}\b"), "GitHub-Token"),
-    (re.compile(rb"\b(?:[0-9A-F]{2}:){5}[0-9A-F]{2}\b"), "Bluetooth-/MAC-Adresse (persönliches Gerät?)"),
+    (re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----"), "private key"),
+    (re.compile(rb"^\.class [^\n]*L[\w/$]+;", re.M), "Smali code (decompiled)"),
+    (re.compile(rb"/\* WARNING: (?:Removing unreachable block|Control flow encountered bad instruction)"), "Ghidra decompiler output"),
+    (re.compile(rb"Decompiled with CFR|// Decompiled by|jadx(?:-gui)? [0-9.]+ decompiled", re.I), "Java decompiler output"),
+    (re.compile(rb"Copyright[^\n]{0,40}(?:JIELI|Jieli|JieLi|Realtek|Actions Semiconductor|SiFli|Bluetrum)[^\n]{0,60}All Rights Reserved", re.I), "vendor source without a free licence"),
+    (re.compile(rb"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), "cloud access key"),
+    (re.compile(rb"\bgh[pousr]_[A-Za-z0-9]{36,}\b"), "GitHub token"),
+    (re.compile(rb"\b(?:[0-9A-F]{2}:){5}[0-9A-F]{2}\b"), "Bluetooth/MAC address (personal device?)"),
 ]
 
 MAX_SIZE = 2 * 1024 * 1024
@@ -94,20 +94,18 @@ def check(root: Path, staged: bool = False, use_git: bool = True) -> list[dict]:
         rel = p.relative_to(root).as_posix()
         if any(fnmatch.fnmatch(rel, a) for a in allow):
             continue
-        if rel.startswith("tests/fixtures/") and p.suffix == ".py":
-            continue
         ext = p.suffix.lower()
         if ext in BLOCKED_EXT:
-            findings.append({"file": rel, "rule": "dateityp", "reason": BLOCKED_EXT[ext]})
+            findings.append({"file": rel, "rule": "file-type", "reason": BLOCKED_EXT[ext]})
             continue
         size = p.stat().st_size
         if size > MAX_SIZE:
-            findings.append({"file": rel, "rule": "groesse", "reason": f"{size} Byte > {MAX_SIZE}: Rohdaten gehören nach private/"})
+            findings.append({"file": rel, "rule": "size", "reason": f"{size} bytes > {MAX_SIZE}: raw data belongs in private/"})
             continue
-        data = p.read_bytes()[:TEXT_SCAN_LIMIT]
         if rel.endswith(("guard.py", "LEGAL.md")):
-            continue  # enthalten die Muster selbst
+            continue  # these contain the patterns themselves
+        data = p.read_bytes()[:TEXT_SCAN_LIMIT]
         for rx, reason in CONTENT_RULES:
             if rx.search(data):
-                findings.append({"file": rel, "rule": "inhalt", "reason": reason})
+                findings.append({"file": rel, "rule": "content", "reason": reason})
     return findings

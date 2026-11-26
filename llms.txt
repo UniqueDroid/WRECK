@@ -1,20 +1,21 @@
 # WRECK – Watch Reverse Engineering & Cracking Kit
 
-> Bauplan und CLI, mit dem Menschen und KI-Agenten günstige China-Smartwatches nachvollziehbar und im rechtlichen
-> Rahmen (DE/EU: § 69d/§ 69e UrhG, § 3 GeschGehG) untersuchen und anpassen. Herstellermaterial bleibt privat.
+> Blueprint and CLI that let humans and AI agents study and customise cheap Chinese smartwatches they own, in a
+> traceable way and within the legal framework (EU: Software Directive Art. 5/6, Trade Secrets Directive Art. 3).
+> Vendor material stays private.
 
-## Einstieg
-- [AGENTS.md](AGENTS.md): Regeln und Ablauf für KI-Agenten
-- [LEGAL.md](LEGAL.md): was erlaubt ist, was nie ins Repo darf
-- [docs/PLAYBOOK.md](docs/PLAYBOOK.md): Phasen 0–6 mit Toren
+## Start here
+- [AGENTS.md](AGENTS.md): rules and workflow for AI agents
+- [LEGAL.md](LEGAL.md): what is allowed, what must never enter the repo
+- [docs/PLAYBOOK.md](docs/PLAYBOOK.md): phases 0–6 with gates
 
-## Wissen
-- [docs/RECOVERY.md](docs/RECOVERY.md): Rückweg vor jedem Experiment
-- [docs/CHIPS.md](docs/CHIPS.md): Chipfamilien und Merkmale
-- [docs/APP-LAYER.md](docs/APP-LAYER.md): eigene App-Schicht statt Einzelpatches
-- [docs/EVIDENCE.md](docs/EVIDENCE.md): Statuswerte, Belegbuch, Berichte
-- [docs/TOOLS.md](docs/TOOLS.md): externe Werkzeuge
-- [docs/formats/jl-watchface.md](docs/formats/jl-watchface.md): JieLi-Zifferblattformat
+## Knowledge
+- [docs/RECOVERY.md](docs/RECOVERY.md): way back before every experiment
+- [docs/CHIPS.md](docs/CHIPS.md): chip families and markers
+- [docs/APP-LAYER.md](docs/APP-LAYER.md): your own app layer instead of one-off patches
+- [docs/EVIDENCE.md](docs/EVIDENCE.md): status values, ledger, reports
+- [docs/TOOLS.md](docs/TOOLS.md): external tools
+- [docs/formats/jl-watchface.md](docs/formats/jl-watchface.md): JieLi watch face format
 
-## Beispiel
-- [devices/m78-jl701n/](devices/m78-jl701n/README.md): M78 mit JieLi JL701N, Hardware-Fakten und Erfahrungen
+## Example
+- [devices/m78-jl701n/](devices/m78-jl701n/README.md): M78 with JieLi JL701N, hardware facts and lessons learned

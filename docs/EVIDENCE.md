@@ -1,39 +1,39 @@
-# Belege, Profile, Berichte
+# Evidence, profiles, reports
 
-## Ablage
+## Layout
 
 ```
-devices/<gerät>/
-  profile.json       Fakten mit Status und Belegen (Schema wreck-profile/1)
-  ledger.jsonl       Belegbuch: eine Aussage je Zeile, mit Status und Quelle
-  provenance.jsonl   Herkunft privater Dateien (Name, Größe, SHA-256, woher, wie)
-  LEGAL-ACK.md       Bestätigung des rechtlichen Rahmens
-  reports/           Berichte (eigene Worte)
-private/<gerät>/     NIE im Repo: inbox, firmware, apk, dumps, decompiled, builds
+devices/<device>/
+  profile.json       facts with status and evidence (schema wreck-profile/1)
+  ledger.jsonl       evidence ledger: one statement per line, with status and source
+  provenance.jsonl   origin of private files (name, size, SHA-256, where from, how)
+  LEGAL-ACK.md       confirmation of the legal framework
+  reports/           reports (own words)
+private/<device>/    NEVER in the repo: inbox, firmware, apk, dumps, decompiled, builds
 ```
 
-## Statuswerte
+## Status values
 
-| Status | Bedeutung | Wer darf ihn setzen |
+| Status | Meaning | Who may set it |
 | --- | --- | --- |
-| `offen` | unbekannt | – |
-| `vermutet` | Hinweis, nicht geprüft (Strings, Teardown eines Geschwistermodells) | Mensch, Agent |
-| `am-rechner-geprueft` | durch Analyse/Modell/Test am Rechner belegt | Mensch, Agent (mit Beleg) |
-| `am-geraet-bestaetigt` | an der echten Uhr beobachtet | **nur** nach Rückmeldung des Menschen mit der Uhr |
-| `widerlegt` | geprüft und falsch | Mensch, Agent (mit Beleg) |
+| `open` | unknown | – |
+| `suspected` | hint, not verified (strings, teardown of a sibling model) | human, agent |
+| `verified-on-pc` | backed by analysis/model/test on the PC | human, agent (with evidence) |
+| `confirmed-on-device` | observed on the real watch | **only** after feedback from the human with the watch |
+| `refuted` | checked and wrong | human, agent (with evidence) |
 
-`wreck check` lehnt Profile ab, deren Status ≥ `am-rechner-geprueft` keinen Beleg hat.
+`wreck check` rejects profiles whose status is ≥ `verified-on-pc` without evidence.
 
-## Belegbuch
+## Ledger
 
 ```
-wreck ledger <gerät> "Touch-Controller antwortet auf I²C 0x2E" --status am-geraet-bestaetigt --source "Diagnose-App, Foto 2" --fact touch
+wreck ledger <device> "Touch controller answers on I²C 0x2E" --status confirmed-on-device --source "diagnostic app, photo 2" --fact touch
 ```
 
-Quellen in eigenen Worten. Herstellerinterne Adressen nur in privaten Notizen, nicht im öffentlichen Belegbuch.
+Sources in your own words. Addresses inside the vendor firmware belong in private notes only, not in the public ledger.
 
-## Berichte
+## Reports
 
-`wreck report <gerät> "<titel>"` legt einen Bericht aus `templates/report.md` an. Aufbau: Ergebnis zuerst, dann
-belegt / vermutet / offen, dann Downloads (nur eigene Dateien), dann Rückweg. Ein Bericht endet nie mit „funktioniert“,
-wenn kein Gerätetest stattgefunden hat.
+`wreck report <device> "<title>"` creates a report from `templates/report.md`. Structure: result first, then
+verified / suspected / open, then downloads (own files only), then the way back. A report never ends with "works" if no
+device test took place.

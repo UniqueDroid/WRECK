@@ -1,30 +1,30 @@
-# Testprotokoll: <Build/Version>
+# Test protocol: <build/version>
 
-**Was ist es:** <eine Zeile>
-**Was ändert es (genau eine Sache):** <eine Zeile>
-**Ausgangsversion (zuletzt am Gerät bestätigt):** <Version, SHA-256>
+**What it is:** <one line>
+**What it changes (exactly one thing):** <one line>
+**Base version (last confirmed on the device):** <version, SHA-256>
 
-## Vorher
+## Before
 
-- [ ] Akku über 50 %, Handy in der Nähe, keine anderen Bluetooth-Apps verbunden
-- [ ] Rettungspaket liegt bereit (Originalfirmware + letzte bestätigte Version, Hashes geprüft)
-- [ ] Rückweg einmal durchgespielt
+- [ ] Battery above 50 %, phone nearby, no other Bluetooth apps connected
+- [ ] Rescue kit ready (original firmware + last confirmed version, hashes checked)
+- [ ] Way back run through once
 
-## Ablauf
+## Procedure
 
-| Schritt | Tun | Erwartet | Beobachtet (Foto/Video?) |
+| Step | Do | Expected | Observed (photo/video?) |
 | --- | --- | --- | --- |
-| 1 | Build einspielen über … | Fortschritt bis 100 %, Neustart |  |
+| 1 | install the build via … | progress to 100 %, reboot |  |
 | 2 | … | … |  |
 
-## Wenn etwas schiefgeht
+## If something goes wrong
 
-1. <Hardware-Reset, falls vorhanden, z. B. Taste X für N Sekunden>
-2. <Rückweg: App …, Datei …, Verbindungsfenster beachten>
-3. Build als **zurückgezogen** markieren, Beobachtung ins Belegbuch.
+1. <hardware reset, if any, e.g. hold button X for N seconds>
+2. <way back: app …, file …, mind the connection window>
+3. Mark the build **withdrawn**, add the observation to the ledger.
 
-## Ergebnis
+## Result
 
-- [ ] bestätigt  - [ ] teilweise  - [ ] fehlgeschlagen → zurückgezogen
+- [ ] confirmed  - [ ] partly  - [ ] failed → withdrawn
 
-Belegbuch-Eintrag: `wreck ledger <gerät> "<Aussage>" --status am-geraet-bestaetigt --source "Testprotokoll <Datum>"`
+Ledger entry: `wreck ledger <device> "<statement>" --status confirmed-on-device --source "test protocol <date>"`

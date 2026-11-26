@@ -1,25 +1,25 @@
-# Chipfamilien in China-Uhren
+# Chip families in Chinese watches
 
-Startpunkt, kein Lexikon. Spalte „Sicherheit“: **sicher** = an einem Gerät in diesem Repo belegt,
-**Hinweis** = verbreitete Annahme, am eigenen Gerät prüfen. Neue Einträge nur mit Quelle (Gerät, Teardown, Datenblatt).
-Die gleichen Muster stehen maschinenlesbar in `wreck/data/hints.json` und werden von `wreck identify` genutzt.
+A starting point, not an encyclopedia. Column "Confidence": **confirmed** = proven on a device in this repo,
+**hint** = common assumption, verify on your own device. Add entries only with a source (device, teardown, datasheet).
+The same patterns are in machine-readable form in `wreck/data/hints.json` and are used by `wreck identify`.
 
-| Familie | Typische Merkmale | Öffentliche Ressourcen | Sicherheit |
+| Family | Typical markers | Public resources | Confidence |
 | --- | --- | --- | --- |
-| **JieLi BR28** (AC701N / JL701N) | Strings `JL701N`, `isd_config`, `uboot.boot`, `ota.bin` im Update; CPU-Architektur pi32v2; QSPI-AMOLED; großer Teil des Updates verschlüsselt (hohe Entropie) | GitHub-Organisation *Jieli-Tech* (SDKs, Android-OTA-Bibliotheken); Community: *kagaimiq/jl-misctools* (Formate, Werkzeuge), *quarkslab/ghidra-jieli* (Prozessormodul, unvollständig) | sicher (M78) |
-| JieLi BR23/BR25/BR35 | ähnliche Container und Strings, andere Chipnamen | wie oben | Hinweis |
-| Realtek Bee (RTL876x) | `realsil`-Pakete in der App, Realtek-OTA | SDK teils nur über Händler | Hinweis |
-| Actions (ATS30xx) | Strings `ATS30…`; eigene OTA-Formate | wenig öffentlich | Hinweis |
-| SiFli (SF32LB5x) | Strings `SF32LB`, `sifli` | offenes SDK des Herstellers | Hinweis |
-| Nordic nRF52 | `SoftDevice`, Nordic-DFU (`FE59`) | vollständig dokumentiert | Hinweis (eher ältere Bänder) |
-| Bluetrum, Telink, BES | Chipnamen in Strings | unterschiedlich | Hinweis |
+| **JieLi BR28** (AC701N / JL701N) | strings `JL701N`, `isd_config`, `uboot.boot`, `ota.bin` in the update; CPU architecture pi32v2; QSPI AMOLED; large parts of the update encrypted (high entropy) | GitHub organisation *Jieli-Tech* (SDKs, Android OTA libraries); community: *kagaimiq/jl-misctools* (formats, tools), *quarkslab/ghidra-jieli* (processor module, incomplete) | confirmed (M78) |
+| JieLi BR23/BR25/BR35 | similar containers and strings, different chip names | as above | hint |
+| Realtek Bee (RTL876x) | `realsil` packages in the app, Realtek OTA | SDK partly only via distributors | hint |
+| Actions (ATS30xx) | strings `ATS30…`; own OTA formats | little public | hint |
+| SiFli (SF32LB5x) | strings `SF32LB`, `sifli` | vendor's open SDK | hint |
+| Nordic nRF52 | `SoftDevice`, Nordic DFU (`FE59`) | fully documented | hint (mostly older bands) |
+| Bluetrum, Telink, BES | chip names in strings | varies | hint |
 
-## Wichtig
+## Important
 
-- **Begleitapps sind Mehrchip-Apps.** Die M78-App enthält ein Realtek-SDK, obwohl die Uhr einen JieLi-Chip hat.
-  Ein SDK-Paket in der APK ist nur ein Hinweis.
-- **Gleiche Platine, viele Namen.** Modellnummern auf der Verpackung sagen wenig. Aussagekräftiger: Firmware-Präfix
-  (z. B. `M78_4.10.62`), Bootloader-Hash, Display-Init-Tabelle, Tastentabelle.
-- **Verschlüsselte Updates** sind normal. Die Entschlüsselung ist Formatwissen; WRECK liefert dafür bewusst keinen
-  Code und keine Schlüssel. Wer sie für das eigene Gerät braucht, nutzt öffentliche Community-Werkzeuge nach eigener
-  Prüfung von Lizenz und Rechtslage, lokal in `private/`.
+- **Companion apps are multi-chip apps.** The M78 app contains a Realtek SDK although the watch has a JieLi chip.
+  An SDK package in the APK is only a hint.
+- **Same board, many names.** Model numbers on the box say little. More telling: firmware prefix
+  (e.g. `M78_4.10.62`), bootloader hash, display init table, button table.
+- **Encrypted updates** are normal. Decryption is format knowledge; WRECK deliberately ships no code and no keys for
+  it. If you need it for your own device, use public community tools after checking their licence and the legal
+  situation yourself, locally in `private/`.

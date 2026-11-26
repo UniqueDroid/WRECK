@@ -1,79 +1,79 @@
 {
   "schema": "wreck-profile/1",
   "id": "template",
-  "name": "<Modellname>",
+  "name": "<model name>",
   "aliases": [
-    "<weitere Namen>"
+    "<other names>"
   ],
   "sold_as": [
-    "<Verkaufsnamen>"
+    "<retail names>"
   ],
   "facts": {
     "companion_app": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Begleitapp (Name, Paketname, Version)"
+      "label": "Companion app (name, package, version)"
     },
     "chip": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "SoC / Chipfamilie"
+      "label": "SoC / chip family"
     },
     "flash_layout": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Flash-Aufteilung (intern/extern, Bänke, Bereiche)"
+      "label": "Flash layout (internal/external, banks, regions)"
     },
     "update_path": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Wie kommt eine Firmware auf die Uhr (DFU/OTA-Ablauf)"
+      "label": "How firmware gets onto the watch (DFU/OTA flow)"
     },
     "recovery": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Nachgewiesener Rückweg, falls ein Experiment schiefgeht"
+      "label": "Proven way back if an experiment fails"
     },
     "display": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Display (Auflösung, Schnittstelle, Controller)"
+      "label": "Display (resolution, interface, controller)"
     },
     "touch": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Touch-Controller (Bus, Adresse, Pins)"
+      "label": "Touch controller (bus, address, pins)"
     },
     "buttons": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Tasten, Krone, Reset"
+      "label": "Buttons, crown, reset"
     },
     "sensors": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Sensoren (Beschleunigung, Puls, ...)"
+      "label": "Sensors (accelerometer, heart rate, ...)"
     },
     "factory_menu": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Werkstest-/Servicemenü"
+      "label": "Factory test / service menu"
     },
     "app_layer": {
       "value": null,
-      "status": "offen",
+      "status": "open",
       "evidence": [],
-      "label": "Eigene App-Schicht (z. B. Skript-Apps)"
+      "label": "Own app layer (e.g. script apps)"
     }
   },
   "notes": []

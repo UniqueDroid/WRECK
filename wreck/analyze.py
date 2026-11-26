@@ -1,8 +1,7 @@
-"""Rein lesende Analyse von Dateien: Typ, Strings, Entropie, bekannte Strukturen.
+"""Read-only file analysis: type, strings, entropy, known structures.
 
-Nichts hier verändert, entschlüsselt oder verschickt Dateien. Alle Funktionen
-liefern einfache dicts/lists, damit Menschen und KI-Agenten die Ergebnisse als
-JSON weiterverarbeiten können.
+Nothing here modifies, decrypts or transmits files. All functions return plain
+dicts/lists so that humans and AI agents can process the results as JSON.
 """
 from __future__ import annotations
 
@@ -16,18 +15,18 @@ from importlib import resources
 from pathlib import Path
 
 MAGIC = [
-    (b"PK\x03\x04", "zip", "ZIP-Archiv (auch APK, .oapps-ähnliche Pakete, OTA-ZIP)"),
-    (b"\x7fELF", "elf", "ELF-Programm/Objekt"),
-    (b"\xff\xd8\xff", "jpeg", "JPEG-Bild"),
-    (b"\x89PNG\r\n\x1a\n", "png", "PNG-Bild"),
-    (b"GIF8", "gif", "GIF-Bild"),
+    (b"PK\x03\x04", "zip", "ZIP archive (also APK, app packages, OTA ZIP)"),
+    (b"\x7fELF", "elf", "ELF program/object"),
+    (b"\xff\xd8\xff", "jpeg", "JPEG image"),
+    (b"\x89PNG\r\n\x1a\n", "png", "PNG image"),
+    (b"GIF8", "gif", "GIF image"),
     (b"\x1f\x8b", "gzip", "gzip"),
-    (b"\x04\x22\x4d\x18", "lz4", "LZ4-Frame"),
+    (b"\x04\x22\x4d\x18", "lz4", "LZ4 frame"),
     (b"BZh", "bzip2", "bzip2"),
     (b"\xfd7zXZ\x00", "xz", "xz"),
     (b"7z\xbc\xaf\x27\x1c", "7z", "7-Zip"),
-    (b"dex\n", "dex", "Android-DEX"),
-    (b"ustar", "tar", "tar (Kennung bei Offset 257)"),
+    (b"dex\n", "dex", "Android DEX"),
+    (b"ustar", "tar", "tar (magic at offset 257)"),
 ]
 
 
@@ -66,21 +65,21 @@ def entropy_map(data: bytes, block: int = 4096) -> list[dict]:
         chunk = data[off:off + block]
         e = entropy(chunk)
         if chunk.count(0xFF) == len(chunk):
-            cls = "leer (0xFF)"
+            cls = "empty (0xFF)"
         elif chunk.count(0) == len(chunk):
-            cls = "leer (0x00)"
+            cls = "empty (0x00)"
         elif e > 7.9:
-            cls = "verschlüsselt/komprimiert"
+            cls = "encrypted/compressed"
         elif e > 6.5:
-            cls = "Code/Bilddaten"
+            cls = "code/image data"
         else:
-            cls = "Tabellen/Text"
+            cls = "tables/text"
         out.append({"offset": off, "size": len(chunk), "entropy": round(e, 3), "class": cls})
     return out
 
 
 def summarize_regions(emap: list[dict]) -> list[dict]:
-    """Fasst gleich klassifizierte, aufeinanderfolgende Blöcke zusammen."""
+    """Merge consecutive blocks of the same class."""
     regions: list[dict] = []
     for b in emap:
         if regions and regions[-1]["class"] == b["class"]:
@@ -95,7 +94,7 @@ _UTF16 = re.compile(rb"(?:[\x20-\x7e]\x00){%d,}")
 
 
 def strings(data: bytes, min_len: int = 6, utf16: bool = True, gbk: bool = True) -> list[dict]:
-    """ASCII-, UTF-16LE- und (optional) GBK-Strings mit Offset."""
+    """ASCII, UTF-16LE and (optionally) GBK strings with offsets."""
     found = []
     for m in re.finditer(_ASCII.pattern % min_len, data):
         found.append({"offset": m.start(), "enc": "ascii", "text": m.group().decode("ascii")})
@@ -103,7 +102,7 @@ def strings(data: bytes, min_len: int = 6, utf16: bool = True, gbk: bool = True)
         for m in re.finditer(_UTF16.pattern % min_len, data):
             found.append({"offset": m.start(), "enc": "utf-16le", "text": m.group().decode("utf-16le")})
     if gbk:
-        # Chinesische Texte in GB2312/GBK: Folgen von Doppelbytes 0xA1-0xF7 / 0xA1-0xFE.
+        # Chinese text in GB2312/GBK: runs of double bytes 0xB0-0xF7 / 0xA1-0xFE.
         for m in re.finditer(rb"(?:[\xb0-\xf7][\xa1-\xfe]){3,}", data):
             try:
                 found.append({"offset": m.start(), "enc": "gbk", "text": m.group().decode("gbk")})
@@ -130,7 +129,7 @@ def chip_hints(data: bytes, hints: dict | None = None) -> list[dict]:
 
 
 def find_images(data: bytes, limit: int = 500) -> list[dict]:
-    """Eingebettete JPEG/PNG finden (z. B. Bootlogo, Symbole)."""
+    """Find embedded JPEG/PNG (boot logo, icons, ...)."""
     out = []
     for m in re.finditer(rb"\xff\xd8\xff[\xdb\xe0\xe1\xee\xc0\xc4]", data):
         end = data.find(b"\xff\xd9", m.start() + 4)
@@ -148,11 +147,11 @@ def find_images(data: bytes, limit: int = 500) -> list[dict]:
 
 
 def find_display_init(data: bytes) -> list[dict]:
-    """MIPI-DCS-Fenster (CASET 0x2A / RASET 0x2B) in Init-Tabellen suchen.
+    """Look for MIPI DCS windows (CASET 0x2A / RASET 0x2B) in init tables.
 
-    Viele Display-Treiber senden `2A 00 00 HH LL` und `2B 00 00 HH LL` beim Start.
-    (HHLL + 1) ergibt Breite bzw. Höhe. Bei der M78 führte genau das zur
-    Init-Tabelle des AMOLED (368 x 448).
+    Many display drivers send `2A 00 00 HH LL` and `2B 00 00 HH LL` at start-up.
+    (HHLL + 1) gives width and height. On the M78 this led straight to the
+    AMOLED init table (368 x 448).
     """
     out = []
     for m in re.finditer(rb"\x2a\x00\x00(..)", data, re.S):
@@ -215,23 +214,23 @@ def identify(path: Path) -> dict:
                 names = z.namelist()
             result["zip_entries"] = len(names)
             if "AndroidManifest.xml" in names:
-                v.append("Android-App: weiter mit `wreck apk`.")
+                v.append("Android app: continue with `wreck apk`.")
             else:
-                v.append("ZIP: Inhalt auflisten; enthält oft OTA-Dateien.")
+                v.append("ZIP: list its contents; often contains OTA files.")
         except zipfile.BadZipFile:
-            v.append("ZIP-Kennung, aber kein lesbares ZIP.")
+            v.append("ZIP magic, but not a readable ZIP.")
     if total > 7.95:
-        v.append("Sehr hohe Entropie: verschlüsselt oder komprimiert. Nicht raten – Format über Begleitapp/SDK klären (docs/PLAYBOOK.md, Phase 3).")
+        v.append("Very high entropy: encrypted or compressed. Don't guess – learn the format from the companion app/SDK (docs/PLAYBOOK.md, phase 4).")
     elif result["chip_hints"]:
-        v.append("Klartext-Merkmale gefunden: Chipfamilie in devices/<gerät>/profile.json als 'vermutet' eintragen.")
+        v.append("Plain-text markers found: record the chip family in devices/<device>/profile.json as 'suspected'.")
     if result["display_init"]:
         d = result["display_init"][0]
-        v.append(f"Display-Init-Kandidat bei 0x{d['offset']:x}: {d['width']} x {d['height']}.")
+        v.append(f"Display init candidate at 0x{d['offset']:x}: {d['width']} x {d['height']}.")
     return result
 
 
 def apk_inventory(path: Path) -> dict:
-    """Begleitapp untersuchen, ohne sie zu dekompilieren: Dateiliste und DEX-Strings."""
+    """Inventory a companion app without decompiling it: file list and DEX strings."""
     hints = load_hints()
     with zipfile.ZipFile(path) as z:
         names = z.namelist()
@@ -255,5 +254,6 @@ def apk_inventory(path: Path) -> dict:
         "firmware_like_files": firmware_like[:100],
         "ble_uuids": find_ble_uuids(dex, hints)[:100],
         "hosts": sorted({re.sub(r"^https?://([^/:]+).*", r"\1", u) for u in find_urls(dex)})[:200],
-        "note": "Nur Bestandsaufnahme. Ein SDK in der App beweist nicht den Chip der Uhr: Begleitapps bedienen oft mehrere Chipfamilien. Dekompilierte Klassen und eingebettete Firmware nicht ins Repo legen (LEGAL.md).",
+        "note": "Inventory only. An SDK inside the app does not prove the watch's chip: companion apps often serve "
+                "several chip families. Never put decompiled classes or bundled firmware into the repo (LEGAL.md).",
     }

@@ -1,22 +1,22 @@
-# Externe Werkzeuge
+# External tools
 
-WRECK selbst ist klein (nur Python-Standardbibliothek). Für tiefere Analyse kommen externe Werkzeuge dazu. Alle
-Ausgaben davon gehören nach `private/<gerät>/decompiled/`.
+WRECK itself is small (Python standard library only). Deeper analysis needs external tools. All their output belongs
+in `private/<device>/decompiled/`.
 
-| Werkzeug | Zweck | Hinweise |
+| Tool | Purpose | Notes |
 | --- | --- | --- |
-| Ghidra | Disassembler/Decompiler | Für exotische CPUs (z. B. JieLi pi32v2) ein Prozessormodul nötig; Community-Module sind oft unvollständig – ein erfolgreicher Build beweist keine korrekte Semantik. Kleine Testfälle gegen bekannte Funktionen prüfen. |
-| pypcode / SLEIGH | Befehle in P-Code übersetzen, Mini-Emulation | gut, um einzelne Funktionen am Rechner „laufen“ zu lassen und Aussagen zu prüfen |
-| Jadx / Apktool | Begleitapp lesen | nur, was für die Interoperabilität nötig ist (Protokoll, Dateiformate); keine Klassen ins Repo |
-| Android HCI-Snoop-Log + Wireshark | Bluetooth-Verkehr der **eigenen** Uhr mitschneiden | Entwickleroptionen → „Bluetooth HCI-Snoop-Log“ |
-| nRF Connect | GATT-Dienste/Merkmale der Uhr ansehen | nur das eigene Gerät koppeln |
-| Hersteller-SDK des Chips | Strukturen, Treiber, Namen wiedererkennen | Lizenz prüfen; meist nicht weitergeben |
-| Community-Formatwerkzeuge | Container, Ressourcen | Lizenz prüfen; lokal verwenden |
+| Ghidra | disassembler/decompiler | exotic CPUs (e.g. JieLi pi32v2) need a processor module; community modules are often incomplete – a successful build does not prove correct semantics. Check small test cases against known functions. |
+| pypcode / SLEIGH | translate instructions to P-code, mini emulation | good for "running" single functions on the PC to verify claims |
+| Jadx / Apktool | read the companion app | only what interoperability needs (protocol, file formats); no classes in the repo |
+| Android HCI snoop log + Wireshark | capture the Bluetooth traffic of **your own** watch | Developer options → "Enable Bluetooth HCI snoop log" |
+| nRF Connect | inspect the watch's GATT services/characteristics | pair your own device only |
+| The chip vendor's SDK | recognise structures, drivers, names | check the licence; usually not redistributable |
+| Community format tools | containers, resources | check the licence; use locally |
 
-## Muster für eigene Prüfwerkzeuge
+## Patterns for your own verification tools
 
-- **Hash-gebundene Eingaben:** Ein Werkzeug, das eine bestimmte Originaldatei erwartet, prüft deren SHA-256 und bricht
-  sonst ab. So entstehen keine Builds aus der falschen Vorlage.
-- **Ausgabeordner muss neu sein:** nie etwas Vorhandenes überschreiben.
-- **Prüfer getrennt vom Builder:** Der Prüfer liest den fertigen Build neu ein und vergleicht unabhängig.
-- **JSON-Bericht je Lauf:** Eingabe-Hashes, Ausgabe-Hashes, geänderte Bereiche, `hardware_tested: false`.
+- **Hash-pinned inputs:** a tool that expects a specific original file checks its SHA-256 and aborts otherwise. That
+  way no build comes from the wrong base.
+- **Output directory must be new:** never overwrite anything existing.
+- **Verifier separate from builder:** the verifier re-reads the finished build and compares independently.
+- **JSON report per run:** input hashes, output hashes, changed regions, `hardware_tested: false`.
