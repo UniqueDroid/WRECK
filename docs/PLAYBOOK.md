@@ -1,155 +1,153 @@
-# Playbook: von der unbekannten China-Uhr zur eigenen Anpassung
+# Playbook: from an unknown Chinese watch to your own customisation
 
-Dieses Playbook ist der Bauplan. Es gilt für Menschen und KI-Agenten gleichermaßen. Jede Phase hat ein
-**Tor**: Erst wenn es offen ist, geht es weiter. `wreck next <gerät>` prüft die Tore anhand von
-`devices/<gerät>/profile.json`, `ledger.jsonl` und `provenance.jsonl`.
+This playbook is the blueprint. It applies to humans and AI agents alike. Every phase has a **gate**: you only move
+on once it is open. `wreck next <device>` checks the gates using `devices/<device>/profile.json`, `ledger.jsonl` and
+`provenance.jsonl`.
 
-Die Erfahrungen stammen aus einem echten Projekt (Uhr M78 mit JieLi JL701N, siehe `devices/m78-jl701n`):
-mehrere Dutzend Firmware-Testbuilds, ein Bootloop, ein mühsamer Rückweg. Die Regeln unten sind deshalb
-nicht theoretisch.
+The lessons come from a real project (an M78 watch with a JieLi JL701N, see `devices/m78-jl701n`): dozens of firmware
+test builds, one boot loop, a hard-won way back. The rules below are therefore not theoretical.
 
-## Die fünf Grundregeln
+## The five ground rules
 
-1. **Rückweg vor Experiment.** Nichts wird auf die Uhr geschrieben, bevor nachgewiesen ist, wie man zurückkommt.
-2. **Eine Änderung pro Build.** Zwei Änderungen in einem Build = bei einem Fehler weiß niemand, welche schuld ist.
-   (Bei der M78 kamen Bootlogo und AOD zusammen in einen Build – Bootloop, Ursache lange unklar.)
-3. **Belegstufen ehrlich führen.** `vermutet` → `am-rechner-geprueft` → `am-geraet-bestaetigt`. Nur der Mensch mit
-   der Uhr am Arm kann `am-geraet-bestaetigt` setzen. Ein Agent schreibt nie „funktioniert“, wenn nur der Rechner
-   geprüft hat.
-4. **Byte-Diff statt Bauchgefühl.** Jeder Build hat einen Prüfer, der *alle* Bytes außerhalb der gewollten
-   Änderungsstellen mit dem Ausgangsbild vergleicht.
-5. **Zurückgezogene Builds bleiben zurückgezogen.** Mit Grund markieren, nie wieder anbieten.
+1. **Way back before experiment.** Nothing is written to the watch before it is proven how to get back.
+2. **One change per build.** Two changes in one build = when it fails, nobody knows which one is to blame.
+   (On the M78, a boot logo and an AOD change went into the same build – boot loop, cause unclear for a long time.)
+3. **Keep evidence levels honest.** `suspected` → `verified-on-pc` → `confirmed-on-device`. Only the human wearing the
+   watch can set `confirmed-on-device`. An agent never writes "works" when only the PC has checked it.
+4. **Byte diff, not gut feeling.** Every build has a verifier that compares *all* bytes outside the intended change
+   locations against the base image.
+5. **Withdrawn builds stay withdrawn.** Mark them with the reason, never offer them again.
 
 ---
 
-## Phase 0-recht
+## Phase 0-legal
 
-**Ziel:** Klar, dass die Arbeit erlaubt ist. **Tor:** `devices/<gerät>/LEGAL-ACK.md` vollständig mit „ja“.
+**Goal:** It is clear the work is allowed. **Gate:** `devices/<device>/LEGAL-ACK.md` answered "yes" throughout.
 
-- `LEGAL.md` lesen. Uhr rechtmäßig gekauft, kein NDA, Ziel ist Interoperabilität/Fehlerbehebung/eigene Nutzung.
-- Agenten: Fällt der Wunsch unter „Nicht Ziel von WRECK“, ablehnen und erlaubte Alternative anbieten.
+- Read `LEGAL.md`. Watch bought lawfully, no NDA, goal is interoperability/bug fixing/own use.
+- Agents: if the request falls under "Out of scope for WRECK", decline and offer the permitted alternative.
 
-## Phase 1-erkennen
+## Phase 1-identify
 
-**Ziel:** Wissen, welches Gerät, welcher Chip, welche Begleitapp. **Tor:** `chip` und `companion_app` mindestens `vermutet`.
+**Goal:** Know the device, chip and companion app. **Gate:** `chip` and `companion_app` at least `suspected`.
 
-Ohne die Uhr zu öffnen, in dieser Reihenfolge:
+Without opening the watch, in this order:
 
-1. **Begleitapp** (Name aus der Anleitung/QR-Code). APK von der *eigenen* Installation sichern
-   (`adb shell pm path <paket>`, dann `adb pull`) nach `private/<gerät>/apk/`, Herkunft mit `wreck provenance`.
-2. `wreck apk private/<gerät>/apk/app.apk`: SDK-Pakete (`com/jieli/`, `com/realsil/`, …), BLE-UUIDs, Server,
-   mitgelieferte Firmware. **Achtung:** Begleitapps bedienen oft mehrere Chipfamilien; ein SDK in der App ist ein
-   Hinweis, kein Beweis.
-3. **Werkstest-/Servicemenü** der Uhr suchen (oft versteckte Tippfolge in Einstellungen → System). Zeigt
-   Firmware-/Hardwareversion, Sensoren, Touch-Test. Fotos davon sind gute Belege.
-4. Typenschild, FCC-ID, Bluetooth-Name, Teardown-Videos gleichartiger Uhren (gleiche Platine wird unter vielen
-   Namen verkauft – `sold_as` im Profil).
-5. `docs/CHIPS.md` für typische Merkmale je Chipfamilie.
-
-```
-wreck init "Meine Uhr X9"
-wreck fact meine-uhr-x9 companion_app '{"name":"DeeFit Pro","package":"…"}' --status vermutet --evidence "Anleitung, QR-Code"
-```
-
-## Phase 2-beschaffen
-
-**Ziel:** Die Firmware der eigenen Uhr als Datei. **Tor:** mindestens ein Eintrag in `provenance.jsonl`.
-
-Legale Wege, vom einfachsten zum aufwändigsten:
-
-1. **Update-Datei, die die eigene App für die eigene Uhr lädt** (App-Cache, Downloads-Ordner, mitgelieferte
-   Assets in der APK). Einmalig, für das eigene Gerät – kein Massenabruf vom Herstellerserver.
-2. **Mitschnitt der eigenen Bluetooth-Übertragung** beim offiziellen Update (Android: HCI-Snoop-Log).
-3. **Auslesen über eine vorhandene Funktion** (z. B. Flash-Lesebefehl, den die Firmware schon kennt).
-4. **Hardware** (UART/SWD/Testpunkte) – nur, wenn der Mensch das Öffnen ausdrücklich will.
-
-Alles landet in `private/<gerät>/…`, nie im Repo. Jede Datei bekommt einen Herkunftsnachweis:
+1. **Companion app** (name from the manual/QR code). Save the APK from *your own* install
+   (`adb shell pm path <package>`, then `adb pull`) into `private/<device>/apk/`, record provenance with
+   `wreck provenance`.
+2. `wreck apk private/<device>/apk/app.apk`: SDK packages (`com/jieli/`, `com/realsil/`, …), BLE UUIDs, servers,
+   bundled firmware. **Note:** companion apps often serve several chip families; an SDK inside the app is a hint, not
+   proof.
+3. Look for the **factory test / service menu** (often a hidden tap sequence in Settings → System). It shows
+   firmware/hardware version, sensors, touch test. Photos of it are good evidence.
+4. Label, FCC ID, Bluetooth name, teardown videos of similar watches (the same board is sold under many names –
+   `sold_as` in the profile).
+5. `docs/CHIPS.md` for typical markers of each chip family.
 
 ```
-wreck provenance meine-uhr-x9 private/meine-uhr-x9/firmware/ota.bin --origin "eigene App 2.3.1, Cache" --how "adb pull"
+wreck init "My Watch X9"
+wreck fact my-watch-x9 companion_app '{"name":"DeeFit Pro","package":"…"}' --status suspected --evidence "manual, QR code"
 ```
 
-## Phase 3-rueckweg
+## Phase 2-acquire
 
-**Ziel:** Nachweisen, wie man nach einem fehlgeschlagenen Experiment zurückkommt. **Tor:** `update_path` ≥
-`am-rechner-geprueft` **und** `recovery` = `am-geraet-bestaetigt`. **Vorher wird nichts auf die Uhr geschrieben.**
+**Goal:** The firmware of your own watch as a file. **Gate:** at least one entry in `provenance.jsonl`.
 
-Details und Muster: `docs/RECOVERY.md`. Kurzfassung der Fragen, die beantwortet sein müssen:
+Lawful routes, from easiest to hardest:
 
-- Wie viele Firmware-Plätze gibt es (einfache oder doppelte Bank)? Bleibt beim Update eine alte Kopie?
-- Fällt der Bootloader bei einer abstürzenden App zurück? (Bei der M78: **nein**.)
-- Welcher Teil des Updates braucht die laufende App (Bluetooth), welcher nur den Bootloader/Loader?
-- Gibt es einen Hardware-Reset per Tastendruck (M78: Krone 8 s)? Der hilft nur gegen Hänger, nicht gegen kaputte Firmware.
-- Ist die unveränderte Original-Firmware als Datei vorhanden, geprüft und mit Hash vermerkt?
+1. **The update file your own app downloads for your own watch** (app cache, downloads folder, assets bundled in the
+   APK). Once, for your own device – no mass downloads from the vendor server.
+2. **Capture of your own Bluetooth transfer** during an official update (Android: HCI snoop log).
+3. **Read-out via an existing function** (e.g. a flash read command the firmware already supports).
+4. **Hardware** (UART/SWD/test points) – only if the human explicitly wants to open the watch.
 
-Erster Gerätetest überhaupt: **die unveränderte Originalfirmware** über den offiziellen Weg neu einspielen.
-Erst danach eine Firmware mit einer einzigen, harmlosen Änderung (z. B. Versionstext).
+Everything goes into `private/<device>/…`, never into the repo. Every file gets a provenance record:
 
-## Phase 4-verstehen
+```
+wreck provenance my-watch-x9 private/my-watch-x9/firmware/ota.bin --origin "own app 2.3.1, cache" --how "adb pull"
+```
 
-**Ziel:** Hardware und Formate so weit kennen, wie die Anpassung es braucht. **Tor:** `display`, `touch`,
-`buttons` ≥ `am-rechner-geprueft`.
+## Phase 3-recovery
 
-Werkzeuge in WRECK (rein lesend):
+**Goal:** Prove how to get back after a failed experiment. **Gate:** `update_path` ≥ `verified-on-pc` **and**
+`recovery` = `confirmed-on-device`. **Nothing is written to the watch before this.**
 
-| Frage | Befehl |
+Details and patterns: `docs/RECOVERY.md`. In short, these questions must be answered:
+
+- How many firmware slots are there (single or dual bank)? Does an old copy survive an update?
+- Does the bootloader fall back when an app crashes? (On the M78: **no**.)
+- Which part of the update needs the running app (Bluetooth), which only the bootloader/loader?
+- Is there a hardware reset via a button (M78: crown for 8 s)? It only helps against hangs, not against broken firmware.
+- Is the unmodified original firmware available as a file, checked and recorded with its hash?
+
+The very first device test: re-install the **unmodified original firmware** via the official route. Only after that,
+firmware with a single harmless change (e.g. a version string).
+
+## Phase 4-understand
+
+**Goal:** Know the hardware and formats as far as the customisation needs. **Gate:** `display`, `touch`, `buttons` ≥
+`verified-on-pc`.
+
+Tools in WRECK (read-only):
+
+| Question | Command |
 | --- | --- |
-| Wo ist Code, wo sind Daten, was ist verschlüsselt? | `wreck entropy datei` |
-| Welche Texte, auch Chinesisch (GBK)? | `wreck strings datei --grep test` |
-| Display-Auflösung, Init-Tabelle? | `wreck scan datei` (sucht MIPI-DCS `2A`/`2B`) |
-| Eingebettete Bilder (Bootlogo, Symbole)? | `wreck scan datei --extract private/<gerät>/bilder` |
-| Zifferblatt-Datei verstehen? | `wreck watchface datei` |
+| Where is code, where is data, what is encrypted? | `wreck entropy file` |
+| Which texts, including Chinese (GBK)? | `wreck strings file --grep test` |
+| Display resolution, init table? | `wreck scan file` (looks for MIPI DCS `2A`/`2B`) |
+| Embedded images (boot logo, icons)? | `wreck scan file --extract private/<device>/images` |
+| Understand a watch face file? | `wreck watchface file` |
 
-Externe Werkzeuge (Ghidra, Jadx, Apktool, Prozessor-Module) und wie man sie sauber einsetzt: `docs/TOOLS.md`.
+External tools (Ghidra, Jadx, Apktool, processor modules) and how to use them cleanly: `docs/TOOLS.md`.
 
-Bewährte Abkürzungen:
+Proven shortcuts:
 
-- **Passendes Hersteller-SDK suchen.** Viele China-Uhren sind mit öffentlich verfügbaren Chip-SDKs gebaut. Gleiche
-  Struktur im SDK und in der Firmware (Tabellen, Strukturen, Funktionsreihenfolge) spart Wochen. SDK nur lokal
-  nutzen, Lizenz beachten.
-- **Geschwistermodelle vergleichen.** Dieselbe Platine steckt in vielen Modellen; Firmwares mehrerer Modelle zeigen,
-  was gemeinsam (Bootloader, Treiber) und was modellspezifisch ist.
-- **Diagnose statt Raten.** Eine kleine eigene Diagnose-App (Speicher lesen, Tasten protokollieren) auf der Uhr
-  beantwortet Pin-Fragen schneller als jede statische Analyse (M78: Display-/Tasten-Pins so bestätigt).
+- **Find the matching chip SDK.** Many Chinese watches are built with publicly available chip SDKs. The same structure
+  in SDK and firmware (tables, structs, function order) saves weeks. Use the SDK locally only and respect its licence.
+- **Compare sibling models.** The same board ships in many models; firmware from several of them shows what is shared
+  (bootloader, drivers) and what is model-specific.
+- **Diagnose instead of guessing.** A small diagnostic app of your own on the watch (read memory, log buttons) answers
+  pin questions faster than any static analysis (M78: display and button pins were confirmed this way).
 
-Jede Erkenntnis kommt ins Belegbuch:
+Every finding goes into the ledger:
 
 ```
-wreck ledger meine-uhr-x9 "Display 368x448, Init-Tabelle mit 2A/2B" --status am-rechner-geprueft --source "wreck scan, Offset in privatem Bericht" --fact display
+wreck ledger my-watch-x9 "Display 368x448, init table with 2A/2B" --status verified-on-pc --source "wreck scan, offset in private report" --fact display
 ```
 
-## Phase 5-anpassen
+## Phase 5-modify
 
-**Ziel:** Die kleinste Änderung, die den Wunsch erfüllt, gebaut, geprüft, getestet. Kein festes Tor; Ergebnis ist
-ein Bericht mit Testprotokoll.
+**Goal:** The smallest change that fulfils the wish – built, verified, tested. No fixed gate; the result is a report
+with a test protocol.
 
-Reihenfolge der Mittel, vom risikoärmsten zum riskantesten:
+Means in order of risk, lowest first:
 
-1. **Ohne Firmwareänderung:** eigenes Zifferblatt, eigene Texte/Sprachpakete über vorhandene Wege, eigene Begleitapp
-   (Interoperabilität über das vorhandene Bluetooth-Protokoll).
-2. **Kleiner Firmware-Patch** an genau einer Stelle, mit Byte-Diff-Prüfer.
-3. **Eigene App-Schicht** in der Hersteller-Firmware (Phase 6).
-4. **Eigene Firmware** – nur mit nachgewiesenem, unabhängigem Rückweg.
+1. **No firmware change:** your own watch face, your own texts/language packs via existing routes, your own companion
+   app (interoperability over the existing Bluetooth protocol).
+2. **Small firmware patch** at exactly one location, with a byte-diff verifier.
+3. **Your own app layer** inside the vendor firmware (phase 6).
+4. **Your own firmware** – only with a proven, independent way back.
 
-Pflicht je Build:
+Mandatory for every build:
 
-- eindeutiger Versionsname (z. B. `4.50.12_TEST`), eine Änderung, Changelog-Zeile
-- Prüfer-Ausgabe (JSON) mit: Ausgangs-Hash, neuer Hash, geänderte Bereiche, „nicht am Gerät getestet“
-- Testprotokoll aus `templates/test-protocol.md` für den Menschen: was tun, was erwartet, wie zurück
-- Analyse-Nebenprodukte, die man nicht flashen darf, heißen `…-NOT-FLASHABLE…`
+- unique version name (e.g. `4.50.12_TEST`), one change, one changelog line
+- verifier output (JSON) with: base hash, new hash, changed regions, "not tested on device"
+- test protocol from `templates/test-protocol.md` for the human: what to do, what to expect, how to get back
+- analysis by-products that must not be flashed are named `…-NOT-FLASHABLE…`
 
-## Phase 6-app-schicht
+## Phase 6-app-layer
 
-**Ziel:** Statt jede Funktion in die Firmware zu patchen, einmal eine kleine Laufzeitumgebung einbauen, die
-eigene Apps lädt. Muster, Berechtigungsmodell und Grenzen: `docs/APP-LAYER.md`.
+**Goal:** Instead of patching every feature into the firmware, add a small runtime once that loads your own apps.
+Pattern, permission model and limits: `docs/APP-LAYER.md`.
 
 ---
 
-## Arbeitsweise für KI-Agenten
+## How AI agents work with this
 
-- Zu Beginn: `wreck brief <gerät>` bzw. `wreck --json next <gerät>`. Nur Aufgaben der aktuellen Phase angehen.
-- `write_to_device_allowed: false` heißt: keine Firmware/kein Patch zum Flashen anbieten, nur Analyse und Vorbereitung.
-- Berichte mit `wreck report <gerät> "<titel>"` anlegen; jede Aussage bekommt eine Belegstufe.
-- Vor jedem Commit: `wreck guard`. Herstellermaterial nie committen, auch nicht in Unterordnern.
-- Wenn der Mensch etwas am Gerät bestätigt (Foto, Beschreibung), das als Quelle ins Belegbuch übernehmen
-  („Gerätetest am 19.11., Foto 3“).
+- At the start: `wreck brief <device>` or `wreck --json next <device>`. Only work on tasks of the current phase.
+- `write_to_device_allowed: false` means: offer no firmware or patch for flashing, only analysis and preparation.
+- Create reports with `wreck report <device> "<title>"`; every statement gets an evidence level.
+- Before every commit: `wreck guard`. Never commit vendor material, not even in subfolders.
+- When the human confirms something on the device (photo, description), add it to the ledger as the source
+  ("device test on 19 Nov, photo 3").

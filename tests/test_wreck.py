@@ -1,4 +1,4 @@
-"""Selbsttests ohne Herstellerdateien: alle Eingaben werden hier synthetisch erzeugt."""
+"""Self-tests without vendor files: every input is generated synthetically here."""
 import io
 import json
 import struct
@@ -44,7 +44,7 @@ class AnalyzeTests(unittest.TestCase):
 
     def test_entropy_classes(self):
         emap = analyze.entropy_map(b"\xff" * 4096 + bytes(range(256)) * 16, 4096)
-        self.assertEqual(emap[0]["class"], "leer (0xFF)")
+        self.assertEqual(emap[0]["class"], "empty (0xFF)")
 
     def test_apk_inventory(self):
         with tempfile.TemporaryDirectory() as t:
@@ -56,7 +56,7 @@ class AnalyzeTests(unittest.TestCase):
             r = analyze.apk_inventory(apk)
             self.assertEqual(r["sdk_packages"][0]["prefix"], "com/jieli/")
             self.assertIn("example.org", r["hosts"])
-            self.assertEqual(r["ble_uuids"][0]["confidence"], "sicher")
+            self.assertEqual(r["ble_uuids"][0]["confidence"], "confirmed")
             self.assertIn("assets/fw.ufw", r["firmware_like_files"])
 
 
@@ -67,7 +67,7 @@ class WatchfaceTests(unittest.TestCase):
 
     def test_parse(self):
         r = jl_watchface.parse(self.make())
-        self.assertEqual(r["items"][0]["type_name"], "Stunde")
+        self.assertEqual(r["items"][0]["type_name"], "hour")
         self.assertEqual((r["items"][0]["x"], r["items"][0]["width"]), (100, 30))
         self.assertFalse(r["warnings"])
 
@@ -83,7 +83,7 @@ class GuardTests(unittest.TestCase):
             (r / "fw.bin").write_bytes(b"\x00")
             (r / "k.txt").write_text("-----BEGIN " + "PRIVATE KEY-----\nabc\n")
             (r / "x.txt").write_text(".class public L" + "com/a/B;\n")
-            (r / "ok.md").write_text("Nur eigene Worte.\n")
+            (r / "ok.md").write_text("Own words only.\n")
             (r / "private").mkdir()
             (r / "private" / "dump.bin").write_bytes(b"\x00")
             reasons = {f["file"]: f["reason"] for f in guard.check(r, use_git=False)}
@@ -97,7 +97,7 @@ class GuardTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             r = Path(t)
             (r / "own.bin").write_bytes(b"\x00")
-            (r / ".wreckallow").write_text("own.bin  # selbst erzeugtes Testmuster\n")
+            (r / ".wreckallow").write_text("own.bin  # self-made test pattern\n")
             self.assertEqual(guard.check(r, use_git=False), [])
 
     def test_repository_is_clean(self):
@@ -108,35 +108,35 @@ class WorkspaceTests(unittest.TestCase):
     def test_flow(self):
         with tempfile.TemporaryDirectory() as t:
             r = Path(t)
-            rc, _ = run("--root", t, "init", "Test Uhr X1")
+            rc, _ = run("--root", t, "init", "Test Watch X1")
             self.assertEqual(rc, 0)
-            dev = r / "devices" / "test-uhr-x1"
-            self.assertTrue((r / "private" / "test-uhr-x1" / "inbox").is_dir())
-            rc, out = run("--root", t, "--json", "next", "test-uhr-x1")
-            self.assertEqual(json.loads(out)["phase"], "0-recht")
+            dev = r / "devices" / "test-watch-x1"
+            self.assertTrue((r / "private" / "test-watch-x1" / "inbox").is_dir())
+            rc, out = run("--root", t, "--json", "next", "test-watch-x1")
+            self.assertEqual(json.loads(out)["phase"], "0-legal")
             ack = dev / "LEGAL-ACK.md"
-            ack.write_text(ack.read_text().replace("ja/nein", "ja").replace("bestaetigt: nein", "bestaetigt: ja"))
-            rc, out = run("--root", t, "--json", "next", "test-uhr-x1")
-            self.assertEqual(json.loads(out)["phase"], "1-erkennen")
-            run("--root", t, "fact", "test-uhr-x1", "chip", "JL701N", "--status", "vermutet", "--evidence", "Strings")
-            run("--root", t, "fact", "test-uhr-x1", "companion_app", "DeeFit Pro", "--status", "vermutet")
-            rc, out = run("--root", t, "--json", "next", "test-uhr-x1")
+            ack.write_text(ack.read_text().replace("yes/no", "yes").replace("confirmed: no", "confirmed: yes"))
+            rc, out = run("--root", t, "--json", "next", "test-watch-x1")
+            self.assertEqual(json.loads(out)["phase"], "1-identify")
+            run("--root", t, "fact", "test-watch-x1", "chip", "JL701N", "--status", "suspected", "--evidence", "strings")
+            run("--root", t, "fact", "test-watch-x1", "companion_app", "DeeFit Pro", "--status", "suspected")
+            rc, out = run("--root", t, "--json", "next", "test-watch-x1")
             res = json.loads(out)
-            self.assertEqual(res["phase"], "2-beschaffen")
+            self.assertEqual(res["phase"], "2-acquire")
             self.assertFalse(res["write_to_device_allowed"])
-            f = r / "private" / "test-uhr-x1" / "inbox" / "a.bin"
+            f = r / "private" / "test-watch-x1" / "inbox" / "a.bin"
             f.write_bytes(b"abc")
-            run("--root", t, "provenance", "test-uhr-x1", str(f), "--origin", "eigene Uhr", "--how", "Test")
-            rc, out = run("--root", t, "--json", "next", "test-uhr-x1")
-            self.assertEqual(json.loads(out)["phase"], "3-rueckweg")
+            run("--root", t, "provenance", "test-watch-x1", str(f), "--origin", "own watch", "--how", "test")
+            rc, out = run("--root", t, "--json", "next", "test-watch-x1")
+            self.assertEqual(json.loads(out)["phase"], "3-recovery")
             self.assertEqual(len((dev / "ledger.jsonl").read_text().splitlines()), 1)
-            rc, _ = run("--root", t, "check", "test-uhr-x1")
+            rc, _ = run("--root", t, "check", "test-watch-x1")
             self.assertEqual(rc, 0)
 
     def test_validation(self):
         p = workspace.empty_profile("x", "X")
-        p["facts"]["chip"].update(status="am-geraet-bestaetigt", value="JL701N")
-        self.assertTrue(any("Beleg" in e for e in workspace.validate_profile(p)))
+        p["facts"]["chip"].update(status="confirmed-on-device", value="JL701N")
+        self.assertTrue(any("evidence" in e for e in workspace.validate_profile(p)))
 
     def test_shipped_profiles_valid(self):
         for prof in (ROOT / "devices").glob("*/profile.json"):

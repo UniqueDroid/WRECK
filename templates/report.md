@@ -1,27 +1,27 @@
 # {title}
 
-Gerät: `{device}` · Datum: {date} · Phase: <!-- wreck next {device} -->
+Device: `{device}` · Date: {date} · Phase: <!-- wreck next {device} -->
 
-## Ergebnis
+## Result
 
-<!-- Ein bis drei Sätze. Was ist jetzt anders/bekannt? Ehrlich: „am Rechner geprüft“ ≠ „funktioniert“. -->
+<!-- One to three sentences. What is now different/known? Be honest: "verified on PC" ≠ "works". -->
 
-## Belegt
+## Verified
 
-| Aussage | Status | Quelle |
+| Statement | Status | Source |
 | --- | --- | --- |
-|  | am-rechner-geprueft / am-geraet-bestaetigt |  |
+|  | verified-on-pc / confirmed-on-device |  |
 
-## Vermutet / offen
+## Suspected / open
 
 -
 
-## Downloads (nur eigene Dateien)
+## Downloads (own files only)
 
-| Datei | SHA-256 | Gerätetest |
+| File | SHA-256 | Device test |
 | --- | --- | --- |
-|  |  | nicht getestet |
+|  |  | not tested |
 
-## Testen und Rückweg
+## Testing and way back
 
-Testprotokoll: `templates/test-protocol.md`. Rückweg: <!-- konkreter Weg zurück zur letzten bestätigten Version -->
+Test protocol: `templates/test-protocol.md`. Way back: <!-- concrete route back to the last confirmed version -->

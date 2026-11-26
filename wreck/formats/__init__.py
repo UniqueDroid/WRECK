@@ -1,1 +1,1 @@
-"""Formatbeschreibungen als lesende Parser. Jede Datei hier hat eine Spezifikation unter docs/formats/."""
+"""Format readers. Every module here has a specification under docs/formats/."""

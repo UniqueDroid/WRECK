@@ -1,38 +1,38 @@
-# Eigene App-Schicht
+# Your own app layer
 
-Jede neue Funktion als Firmware-Patch zu bauen ist teuer und riskant. Besser: **einmal** eine kleine
-Laufzeitumgebung in die (gepatchte) Herstellerfirmware bringen, die eigene Apps aus Dateien lädt. Danach braucht eine
-neue App keinen Firmware-Build mehr.
+Building every new feature as a firmware patch is expensive and risky. Better: bring a small runtime into the
+(patched) vendor firmware **once**, which loads your own apps from files. After that, a new app no longer needs a
+firmware build.
 
-Bei der M78 wurde das mit einer kleinen JavaScript-Engine (MicroQuickJS, etwa ES5) umgesetzt; Apps kommen als Paket
-über die Begleitapp und landen als Textdatei auf der Uhr. Das Muster lässt sich auf andere Uhren übertragen.
+On the M78 this was done with a small JavaScript engine (MicroQuickJS, roughly ES5); apps arrive as a package via the
+companion app and end up as a text file on the watch. The pattern transfers to other watches.
 
-## Bausteine
+## Building blocks
 
-| Baustein | Aufgabe | Hinweis |
+| Block | Job | Note |
 | --- | --- | --- |
-| Engine | Skript ausführen, Speicher begrenzen | klein halten (M78: 64 KB RAM je App) |
-| Einstieg | Liste „Apps“ in der Uhr, App öffnen/schließen | vorhandenes Menü wiederverwenden |
-| Zeichnen/Eingabe | `draw()`, `tap(x, y)`, Tasten | über die Grafikroutinen der Firmware |
-| Transport | Dateien von der Begleitapp zur Uhr | vorhandenen Weg nutzen (M78: Weg der E-Books) |
-| Begleitteil | Handy-Seite einer App (Internet, Einstellungen) | Uhr hat kein Internet; Schlüssel bleiben auf dem Handy |
-| Berechtigungen | was eine App darf | von der Uhr bei jedem Aufruf geprüft |
+| Engine | run scripts, limit memory | keep it small (M78: 64 KB RAM per app) |
+| Entry point | "Apps" list on the watch, open/close an app | reuse an existing menu |
+| Drawing/input | `draw()`, `tap(x, y)`, buttons | via the firmware's graphics routines |
+| Transport | files from the companion app to the watch | reuse an existing route (M78: the e-book route) |
+| Companion part | phone side of an app (internet, settings) | the watch has no internet; keys stay on the phone |
+| Permissions | what an app may do | checked by the watch on every call |
 
-## Paketformat (Vorschlag, wie bei der M78 erprobt)
+## Package format (proposal, as proven on the M78)
 
 ```
-meine-app/
+my-app/
   app.json              id, name, version, permissions, companion
-  app.js                Programm für die Uhr
+  app.js                program for the watch
   icon.png
   i18n/de.json, en.json
-  CompanionActivity.js  optional: Teil auf dem Handy
+  CompanionActivity.js  optional: phone part
 ```
 
 ```json
 {
-  "id": "de.beispiel.wetter",
-  "name": "Wetter",
+  "id": "org.example.weather",
+  "name": "Weather",
   "version": "1.0.0",
   "type": "app",
   "permissions": ["phone.message", "timer"],
@@ -40,18 +40,18 @@ meine-app/
 }
 ```
 
-## Regeln, die sich bewährt haben
+## Rules that have proven themselves
 
-- **Berechtigungen als feste Bitnummern**, die sich nie ändern (alte Firmware + neue Pakete passen zusammen).
-- **Internet nur über den Handy-Teil** und nur zu den in `hosts` genannten Servern, nur HTTPS, keine Weiterleitungen.
-- **Kurze Nachrichten** Uhr ↔ Handy (M78: 200 Bytes), Antworten der Server bleiben auf dem Handy.
-- **Packer lehnt Unbekanntes ab** (unbekannte Felder, Berechtigungen, zu große Pakete) – Tippfehler fallen sofort auf.
-- **Gleiche Eingabe, gleiche Bytes:** Pakete reproduzierbar bauen.
-- **Diagnose-Berechtigung** (`debug`: Speicher nur lesen) – damit werden Pin- und Tastenfragen am Gerät geklärt.
-- Apps laufen in der Firmware-Task, die sie startet; **nicht dauerhaft die Oberflächen-Task belegen**, sonst laufen
-  Mitteilungen, Synchronisation und Updates nicht mehr (M78-Befund).
+- **Permissions as fixed bit numbers** that never change (old firmware + new packages stay compatible).
+- **Internet only through the phone part**, only to the servers listed in `hosts`, HTTPS only, no redirects.
+- **Short messages** watch ↔ phone (M78: 200 bytes); server responses stay on the phone.
+- **The packer rejects anything unknown** (unknown fields, permissions, oversized packages) – typos show up at once.
+- **Same input, same bytes:** build packages reproducibly.
+- **Diagnostic permission** (`debug`: read-only memory access) – used to settle pin and button questions on the device.
+- Apps run in the firmware task that starts them; **don't occupy the UI task permanently**, otherwise notifications,
+  sync and updates stop working (M78 finding).
 
-## Grenzen dokumentieren
+## Document the limits
 
-Jede Uhr hat andere Grenzen (Dateigröße, RAM, Texte je Bild, Symbolgröße). Sie gehören ins Geräteprofil unter
-`app_layer`, mit Belegstufe.
+Every watch has different limits (file size, RAM, texts per frame, icon size). They belong in the device profile under
+`app_layer`, with an evidence level.

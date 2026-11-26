@@ -1,65 +1,65 @@
-# Format: JieLi-Zifferblatt „JL“ (368 × 448)
+# Format: JieLi watch face "JL" (368 × 448)
 
-Beschreibung in eigenen Worten, gewonnen zur Interoperabilität (eigene Zifferblätter für die eigene Uhr). Geprüft an
-den Zifferblättern einer M78 (JieLi JL701N); Status je Teil unten. Parser: `wreck watchface <datei>`.
+Description in our own words, obtained for interoperability (own watch faces for your own watch). Checked against the
+watch faces of an M78 (JieLi JL701N); status per part below. Reader: `wreck watchface <file>`.
 
-## Aufbau
+## Layout
 
-| Stelle | Inhalt |
+| Position | Content |
 | --- | --- |
-| Byte 0 | Anzahl der Elemente (die Uhr liest höchstens 88) |
-| Byte 1 | 0 |
-| Byte 2–3 | ASCII `JL` |
-| ab Byte 4 | je Element 24 Bytes |
-| danach | Bilddaten, auf die die Elemente verweisen |
+| byte 0 | number of elements (the watch reads at most 88) |
+| byte 1 | 0 |
+| bytes 2–3 | ASCII `JL` |
+| from byte 4 | 24 bytes per element |
+| after that | image data referenced by the elements |
 
-## Element (24 Bytes, little endian)
+## Element (24 bytes, little endian)
 
-| Offset | Größe | Inhalt |
+| Offset | Size | Content |
 | --- | --- | --- |
-| 0 | 1 | Typ (Tabelle unten) |
-| 1 | 1 | Sichtbarkeit: 0 normal, 1 übersprungen, 2 nur im gedimmten Always-On |
+| 0 | 1 | type (table below) |
+| 1 | 1 | visibility: 0 normal, 1 skipped, 2 only in dimmed always-on mode |
 | 2 | 2 | x |
 | 4 | 2 | y |
-| 6 | 1 | Anzahl Bilder im Bildblock |
-| 7 | 1 | Bildformat: 2 = RGB565 lauflängenkodiert, 8 = mit Deckkraft |
-| 8 | 2 | Farbe oder Startwinkel (je nach Typ) |
-| 10 | 2 | Breite |
-| 12 | 2 | Höhe |
-| 14–15 | 2 | Gruppenkennung bzw. Endwinkel |
-| 16 | 4 | Offset der Bilddaten in der Datei |
-| 20 | 1 | je Typ: Ziffernabstand, Stufenzahl, Drehpunkt x, Aktion einer Tippfläche |
-| 21 | 1 | Ausrichtung: 0 links, 1 mittig, 2 rechts |
-| 22 | 1 | je Typ: Höhenversatz, Drehpunkt y, Takt |
-| 23 | 1 | Variante (Sprache, Tag/Nacht) |
+| 6 | 1 | number of images in the image block |
+| 7 | 1 | image format: 2 = run-length-encoded RGB565, 8 = with alpha |
+| 8 | 2 | colour or start angle (depends on type) |
+| 10 | 2 | width |
+| 12 | 2 | height |
+| 14–15 | 2 | group id or end angle |
+| 16 | 4 | offset of the image data in the file |
+| 20 | 1 | per type: digit spacing, number of steps, pivot x, action of a tap area |
+| 21 | 1 | alignment: 0 left, 1 centre, 2 right |
+| 22 | 1 | per type: vertical offset, pivot y, frame interval |
+| 23 | 1 | variant (language, day/night) |
 
-## Bildblock
+## Image block
 
-`(n + 1)` 32-Bit-Werte (erster = `4 × (n + 1)`, letzter = Blockgröße), dann `n` Bilder.
+`(n + 1)` 32-bit values (first = `4 × (n + 1)`, last = block size), then `n` images.
 
-- **Format 2:** je Zeile ein 32-Bit-Eintrag (Lage Bit 0–20, Länge Bit 21–31); Zeilen lauflängenkodiert
-  (Zählbyte: Bit 7 gesetzt = ein Pixel n-mal, sonst n einzelne Pixel); Pixel RGB565, **höherwertiges Byte zuerst**.
-- **Format 8:** Pixel zu 3 Bytes (Deckkraft, dann RGB565), mit Zeilentabelle wie Format 2 oder roh mit auf 4 Bytes
-  aufgefüllten Zeilen (gedrehte Bilder wie Zeiger).
+- **Format 2:** one 32-bit entry per row (position in bits 0–20, length in bits 21–31); rows run-length encoded
+  (count byte: bit 7 set = one pixel repeated n times, otherwise n literal pixels); pixels RGB565, **high byte first**.
+- **Format 8:** 3 bytes per pixel (alpha, then RGB565), either with a row table and run lengths like format 2, or raw
+  with rows padded to 4 bytes (rotated images such as hands).
 
-## Typen (Auswahl)
+## Types (selection)
 
-| Bereich | Typen |
+| Area | Types |
 | --- | --- |
-| Bilder | `01` Bild, `02` Bildfolge, `03` Stilbild |
-| Zeit digital | `32` Stunde, `33` Minute, `3B` Sekunde, `3E/3F` Stunde Zehner/Einer, `40/41` Minute Zehner/Einer, `67` AM/PM |
-| Zeit analog | `36` Stunden-, `37` Minuten-, `38/39/3D` Sekundenzeiger, `42` 24-h-Zeiger |
-| Datum | `34` Monat, `35` Tag, `3C` Jahr, `63/64` Wochentag |
-| Gerät | `65` Bluetooth, `66/68` Akku, `9C` ungelesene Nachrichten |
-| Aktivität/Gesundheit | `96` Schritte, `97` Kalorien, `98` Puls, `99` Strecke, `9E` Blutsauerstoff, `A0–A2` Fortschritt |
-| Bedienung | `B4` Tippfläche, `E6` Tippbereich um das Folgeelement |
+| Images | `01` image, `02` image sequence, `03` style image |
+| Digital time | `32` hour, `33` minute, `3B` second, `3E/3F` hour tens/units, `40/41` minute tens/units, `67` AM/PM |
+| Analogue time | `36` hour hand, `37` minute hand, `38/39/3D` second hands, `42` 24-hour hand |
+| Date | `34` month, `35` day, `3C` year, `63/64` weekday |
+| Device | `65` Bluetooth, `66/68` battery, `9C` unread notifications |
+| Activity/health | `96` steps, `97` calories, `98` heart rate, `99` distance, `9E` blood oxygen, `A0–A2` progress |
+| Interaction | `B4` tap area, `E6` tap area around the following element |
 
-Vollständige Liste der Namen: `wreck/formats/jl_watchface.py`.
+Full list of names: `wreck/formats/jl_watchface.py`.
 
 ## Status
 
-| Teil | Status |
+| Part | Status |
 | --- | --- |
-| Kopf, Element, Typen der Hersteller-Zifferblätter | am Rechner geprüft (alle Marktdateien einer M78 lesbar, Vorschau stimmt mit Marktbildern überein) |
-| Bildformate 5 und 6, Typen `06`, `14`, `E7–E9` | offen |
-| Selbst erzeugtes Zifferblatt auf der Uhr | offen |
+| Header, element, types of the vendor watch faces | verified on PC (all market files of an M78 readable, previews match the market images) |
+| Image formats 5 and 6, types `06`, `14`, `E7–E9` | open |
+| Self-made watch face on the watch | open |

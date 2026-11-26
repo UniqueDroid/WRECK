@@ -1,57 +1,56 @@
-# Rückweg zuerst
+# Way back first
 
-Eine China-Uhr hat selten einen Rettungsmodus, und fast nie einen zugänglichen Datenanschluss (kontaktloses Laden).
-Eine Firmware, die nicht bis zu ihrer Bluetooth-Update-Funktion startet, macht die Uhr ohne Öffnen unbrauchbar.
-Deshalb ist der Rückweg eine eigene Phase mit eigenem Tor.
+A Chinese watch rarely has a recovery mode and almost never an accessible data port (contactless charging). Firmware
+that does not boot far enough to reach its Bluetooth update function leaves the watch unusable unless you open it.
+That is why the way back is a phase of its own with its own gate.
 
-## 1. Den Update-Weg verstehen (am Rechner)
+## 1. Understand the update path (on the PC)
 
-In drei Schritte zerlegen und für jeden festhalten, **wer** ihn ausführt:
+Split it into three steps and record **who** performs each:
 
-| Schritt | Typische Frage | M78 (JieLi JL701N) |
+| Step | Typical question | M78 (JieLi JL701N) |
 | --- | --- | --- |
-| Übertragen | Wer empfängt die Datei, wo wird sie zwischengespeichert? | Laufende Herstellerfirmware per Bluetooth, Zwischenbereich im externen NOR |
-| Auslösen | Was startet das Einspielen (Übergabe im RAM, Merker im Flash, Neustart)? | Übergabe im RAM, dann Neustart; Auslöser hängt an der Oberflächen-Task |
-| Schreiben | Wer schreibt die neue App in den Programmspeicher? | Bootloader startet einen Loader aus der Update-Datei; **kein Bluetooth nötig** |
+| Transfer | Who receives the file, where is it staged? | Running vendor firmware via Bluetooth, staging area in external NOR |
+| Trigger | What starts the install (hand-over in RAM, flag in flash, reboot)? | Hand-over in RAM, then reboot; the trigger hangs off the UI task |
+| Write | Who writes the new app into program memory? | Bootloader starts a loader taken from the update file; **no Bluetooth needed** |
 
-Daraus folgt, welcher Teil eine kaputte App überlebt. Bei der M78: Übertragen braucht die laufende App, Schreiben nicht.
+This tells you which part survives a broken app. On the M78: transfer needs the running app, writing does not.
 
-Außerdem klären:
+Also find out:
 
-- **Bänke:** Einfache Bank = die alte App wird überschrieben, kein automatisches Zurück. Doppelte Bank = Umschalten
-  erst nach Prüfung (nur wenn der Bootloader das kann – nachweisen, nicht annehmen).
-- **Prüfsummen/Signaturen:** Welche prüft der Loader? Ein Container mit falscher Prüfsumme wird oft still verworfen –
-  gut als harmloser erster Test des Weges.
-- **Bootloader-Fallback:** Gibt es einen? (M78: nein; letzter Ausweg wäre UART an Testpunkten.)
+- **Banks:** Single bank = the old app is overwritten, no automatic fallback. Dual bank = switch only after
+  verification (only if the bootloader supports it – prove it, don't assume it).
+- **Checksums/signatures:** Which does the loader check? A container with a wrong checksum is often silently
+  rejected – a good harmless first test of the route.
+- **Bootloader fallback:** Is there one? (M78: no; the last resort would be UART on test points.)
 
-## 2. Muster für einen sicheren Rückweg
+## 2. Patterns for a safe way back
 
-Vom sichersten zum riskantesten:
+Safest first:
 
-1. **Nichts Bleibendes ändern.** Eigener Code läuft nur im RAM/PSRAM und wird von der unveränderten Herstellerfirmware
-   gestartet. Jeder Neustart führt zur Originalfirmware zurück. (Bei der M78 so umgesetzt: eigener Code aus dem PSRAM,
-   gestartet durch eine eigene App.)
-2. **Starter mit Notausgang.** Ein eigenes Startprogramm läuft nur, wenn beim Einschalten eine Taste gehalten wird.
-   Ohne Taste: normale Firmware.
-3. **Gepatchte Herstellerfirmware**, bei der Bluetooth-Update und Start **byte-gleich** zum Original bleiben
-   (Prüfer vergleicht diese Bereiche ausdrücklich).
-4. **Eigene Firmware** nur, wenn ein unabhängiger Rückweg *am Gerät* bestätigt ist (z. B. Update-Datei liegt geprüft im
-   externen Flash und lässt sich ohne Bluetooth einspielen).
+1. **Change nothing permanent.** Your code runs only in RAM/PSRAM and is started by the unmodified vendor firmware.
+   Every reboot returns to the original firmware. (Done this way on the M78: own code from PSRAM, started by an own app.)
+2. **Launcher with an emergency exit.** Your own start program runs only if a button is held during power-on.
+   Without the button: normal firmware.
+3. **Patched vendor firmware** in which Bluetooth update and boot stay **byte-identical** to the original (the
+   verifier explicitly compares these regions).
+4. **Your own firmware** only if an independent way back is confirmed *on the device* (e.g. a verified update file
+   stored in external flash that can be installed without Bluetooth).
 
-## 3. Rettungspaket vor dem ersten Test
+## 3. Rescue kit before the first test
 
-Bevor der erste veränderte Build auf die Uhr geht, liegt bereit (privat):
+Before the first modified build goes onto the watch, have ready (privately):
 
-- Originalfirmware mit Hash und Herkunftsnachweis
-- die zuletzt **am Gerät bestätigte** eigene Version (falls vorhanden)
-- eine Anleitung in einfachen Worten: welche App, welcher Knopf, wie lange warten, was tun bei kurzem Verbindungsfenster
-- Hinweis auf den Hardware-Reset (falls vorhanden; ersetzt keinen Rückweg)
+- the original firmware with hash and provenance record
+- the last own version **confirmed on the device** (if any)
+- plain-language instructions: which app, which button, how long to wait, what to do with a short connection window
+- a note about the hardware reset (if any; it does not replace a way back)
 
-## 4. Testablauf am Gerät
+## 4. Test procedure on the device
 
-`templates/test-protocol.md` verwenden. Immer:
+Use `templates/test-protocol.md`. Always:
 
-1. Akku > 50 %, Handy nah, keine anderen Bluetooth-Apps verbunden.
-2. Zuerst den Rückweg einmal durchspielen (Original neu einspielen), dann den Testbuild.
-3. Ergebnis mit Foto/Video festhalten; ins Belegbuch mit Datum.
-4. Bei Fehlverhalten: Build sofort als zurückgezogen markieren, Rückweg ausführen, erst dann Ursachen suchen.
+1. Battery > 50 %, phone nearby, no other Bluetooth apps connected.
+2. First run through the way back once (re-install the original), then the test build.
+3. Record the result with a photo/video; add it to the ledger with a date.
+4. On misbehaviour: mark the build withdrawn immediately, take the way back, only then look for causes.
