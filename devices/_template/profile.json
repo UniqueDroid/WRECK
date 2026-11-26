@@ -1,0 +1,80 @@
+{
+  "schema": "wreck-profile/1",
+  "id": "template",
+  "name": "<Modellname>",
+  "aliases": [
+    "<weitere Namen>"
+  ],
+  "sold_as": [
+    "<Verkaufsnamen>"
+  ],
+  "facts": {
+    "companion_app": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Begleitapp (Name, Paketname, Version)"
+    },
+    "chip": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "SoC / Chipfamilie"
+    },
+    "flash_layout": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Flash-Aufteilung (intern/extern, Bänke, Bereiche)"
+    },
+    "update_path": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Wie kommt eine Firmware auf die Uhr (DFU/OTA-Ablauf)"
+    },
+    "recovery": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Nachgewiesener Rückweg, falls ein Experiment schiefgeht"
+    },
+    "display": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Display (Auflösung, Schnittstelle, Controller)"
+    },
+    "touch": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Touch-Controller (Bus, Adresse, Pins)"
+    },
+    "buttons": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Tasten, Krone, Reset"
+    },
+    "sensors": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Sensoren (Beschleunigung, Puls, ...)"
+    },
+    "factory_menu": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Werkstest-/Servicemenü"
+    },
+    "app_layer": {
+      "value": null,
+      "status": "offen",
+      "evidence": [],
+      "label": "Eigene App-Schicht (z. B. Skript-Apps)"
+    }
+  },
+  "notes": []
+}

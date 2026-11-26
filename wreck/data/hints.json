@@ -1,0 +1,33 @@
+{
+  "_comment": "Erkennungsmerkmale. 'sicher' = an echten Geräten/Quellen geprüft, 'hinweis' = typisch, aber nur ein Anfangsverdacht. Neue Einträge nur mit Quelle (siehe docs/CHIPS.md).",
+  "chips": [
+    {"family": "JieLi BR28 (AC701N/JL701N)", "vendor": "JieLi", "patterns": ["JL701N", "AC701N", "br28"], "confidence": "sicher", "source": "M78-Firmware (devices/m78-jl701n)"},
+    {"family": "JieLi BR23/BR25 (AC69x/AC63x)", "vendor": "JieLi", "patterns": ["br23", "br25", "AC695", "AC696", "AC63"], "confidence": "hinweis", "source": "öffentliche JieLi-SDKs"},
+    {"family": "JieLi BR35", "vendor": "JieLi", "patterns": ["br35", "AC707", "JL707"], "confidence": "hinweis", "source": "öffentliche JieLi-SDKs"},
+    {"family": "JieLi (allgemein)", "vendor": "JieLi", "patterns": ["jieli", "JIELI", "JL_", "isd_config", "uboot.boot", "ota.bin"], "confidence": "hinweis", "source": "Dateinamen im Update-Container der M78"},
+    {"family": "Realtek Bee (RTL876x)", "vendor": "Realtek", "patterns": ["RTL8762", "RTL8763", "RTL8773", "realsil", "Realtek"], "confidence": "hinweis", "source": "Begleitapps mit Realtek-DFU"},
+    {"family": "Actions (ATS30xx)", "vendor": "Actions", "patterns": ["ATS3085", "ATS3089", "ATS30", "actions_"], "confidence": "hinweis", "source": "Teardowns, Datenblätter"},
+    {"family": "SiFli (SF32LB5x)", "vendor": "SiFli", "patterns": ["SF32LB", "sifli", "SiFli"], "confidence": "hinweis", "source": "offenes SiFli-SDK"},
+    {"family": "Nordic nRF52", "vendor": "Nordic", "patterns": ["nRF52", "NRF52", "nordicsemi", "SoftDevice"], "confidence": "hinweis", "source": "ältere Fitnessbänder"},
+    {"family": "Bluetrum (AB5xxx)", "vendor": "Bluetrum", "patterns": ["Bluetrum", "AB5", "bluetrum"], "confidence": "hinweis", "source": "Teardowns"},
+    {"family": "Telink (TLSR)", "vendor": "Telink", "patterns": ["TLSR", "telink", "Telink"], "confidence": "hinweis", "source": "Teardowns"},
+    {"family": "BES (BES2xxx)", "vendor": "BES", "patterns": ["BES2", "bestechnic"], "confidence": "hinweis", "source": "Teardowns"}
+  ],
+  "apk_packages": [
+    {"prefix": "com/jieli/", "meaning": "JieLi-SDK in der Begleitapp (OTA/RCSP, Zifferblätter)", "confidence": "sicher", "source": "Jieli-Tech Android-SDKs auf GitHub"},
+    {"prefix": "com/realsil/", "meaning": "Realtek-SDK (DFU/OTA) – auch in Apps, die zusätzlich JieLi-Uhren bedienen", "confidence": "hinweis", "source": "Realtek Bee SDK; in DeeFit Pro trotz JieLi-Uhr vorhanden"},
+    {"prefix": "com/qcwireless/", "meaning": "QC-Wireless-SDK (Begleitapps wie DeeFit Pro)", "confidence": "sicher", "source": "DeeFit-Pro-APK der M78"},
+    {"prefix": "com/oudmon/", "meaning": "Oudmon-SDK (Begleitapps wie DeeFit Pro)", "confidence": "sicher", "source": "DeeFit-Pro-APK der M78"},
+    {"prefix": "no/nordicsemi/", "meaning": "Nordic-Bibliotheken (DFU, BLE)", "confidence": "sicher", "source": "Nordic Android-DFU-Library"},
+    {"prefix": "com/sifli/", "meaning": "SiFli-SDK", "confidence": "hinweis", "source": "SiFli"},
+    {"prefix": "com/actions/", "meaning": "Actions-SDK", "confidence": "hinweis", "source": "unbestätigt"}
+  ],
+  "ble_uuids": [
+    {"uuid": "6e400001-b5a3-f393-e0a9-e50e24dcca9e", "meaning": "Nordic UART Service (oft auch bei Nicht-Nordic-Chips nachgebaut)", "confidence": "sicher"},
+    {"uuid": "0000fe59-0000-1000-8000-00805f9b34fb", "meaning": "Nordic Secure DFU", "confidence": "sicher"},
+    {"uuid": "0000180d-0000-1000-8000-00805f9b34fb", "meaning": "Heart Rate (Standard)", "confidence": "sicher"},
+    {"uuid": "0000180f-0000-1000-8000-00805f9b34fb", "meaning": "Battery Service (Standard)", "confidence": "sicher"},
+    {"uuid": "0000180a-0000-1000-8000-00805f9b34fb", "meaning": "Device Information (Standard)", "confidence": "sicher"},
+    {"uuid": "0000ae00-0000-1000-8000-00805f9b34fb", "meaning": "vermutlich JieLi RCSP (ae01/ae02 als Merkmale)", "confidence": "hinweis"}
+  ]
+}

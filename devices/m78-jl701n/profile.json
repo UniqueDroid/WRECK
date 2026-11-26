@@ -1,0 +1,186 @@
+{
+  "schema": "wreck-profile/1",
+  "id": "m78-jl701n",
+  "name": "M78 (Hello Watch 3+ / openWatchOS-Referenz)",
+  "aliases": [
+    "Hello Watch 3+",
+    "HW3+",
+    "M78_V4.1"
+  ],
+  "sold_as": [
+    "Hello Watch 3+ (verschiedene Händler)",
+    "ND326 nutzt dieselbe Plattform (gleiche Tasten- und Displaytabellen)"
+  ],
+  "facts": {
+    "companion_app": {
+      "value": {
+        "name": "DeeFit Pro",
+        "sdks_in_app": [
+          "com/qcwireless",
+          "com/oudmon",
+          "com/realsil (obwohl JieLi-Uhr)"
+        ]
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "Offizielle App der Uhr; SDK-Pakete per wreck apk"
+      ],
+      "label": "Begleitapp (Name, Paketname, Version)"
+    },
+    "chip": {
+      "value": {
+        "soc": "JieLi JL701N (AC701N, Familie BR28)",
+        "cpu": "pi32v2, zwei Kerne",
+        "psram": true
+      },
+      "status": "am-rechner-geprueft",
+      "evidence": [
+        "Chipkennung im Flash-Kopf der Update-Datei",
+        "Struktur stimmt mit öffentlichem JL701N-Uhren-SDK überein"
+      ],
+      "label": "SoC / Chipfamilie"
+    },
+    "flash_layout": {
+      "value": {
+        "internal": "2 MB, einfache Bank (ein Platz für die App)",
+        "external": "16 MB NOR (Ressourcen, Zifferblätter, Update-Zwischenspeicher)",
+        "external_bus": "QSPI auf Port C"
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "Update-Container analysiert",
+        "vollständiger 16-MiB-NOR-Export vom eigenen Gerät"
+      ],
+      "label": "Flash-Aufteilung (intern/extern, Bänke, Bereiche)"
+    },
+    "update_path": {
+      "value": {
+        "steps": [
+          "Übertragen per Bluetooth durch laufende Herstellerfirmware in Zwischenbereich des externen NOR",
+          "Auslösen über Übergabe im RAM + Neustart",
+          "Schreiben durch Loader aus der Update-Datei, ohne Bluetooth"
+        ],
+        "bootloader_fallback": false
+      },
+      "status": "am-rechner-geprueft",
+      "evidence": [
+        "Analyse Update-Ablauf (privater Bericht)"
+      ],
+      "label": "Wie kommt eine Firmware auf die Uhr (DFU/OTA-Ablauf)"
+    },
+    "recovery": {
+      "value": {
+        "pattern": "eigener Code nur im PSRAM, von der unveränderten Herstellerfirmware gestartet; jeder Neustart führt zum Original. Zusätzlich: Rückkehr-Firmware über offizielle Update-Funktion.",
+        "hardware_reset": "Krone 8 s gedrückt = Neustart (kein Firmware-Rückweg)"
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "Gerätetest 19.11.2026: Code aus PSRAM, Neustart → Originalfirmware",
+        "Gerätetest: Rückkehr auf frühere Firmware bestätigt",
+        "Gerätetest: Krone 8 s startet neu"
+      ],
+      "label": "Nachgewiesener Rückweg, falls ein Experiment schiefgeht"
+    },
+    "display": {
+      "value": {
+        "type": "AMOLED",
+        "resolution": [
+          368,
+          448
+        ],
+        "bus": "QSPI (4 Datenleitungen), RGB565, 60 fps",
+        "controller": "Befehlssatz der SH8601-Familie, Treibername in Firmware 'GP3112'; Chip-ID offen",
+        "brightness": "DCS 0x51, keine Hintergrundbeleuchtung",
+        "pins": {
+          "reset": "PA02",
+          "cs": "PA06",
+          "power_en": "PA05",
+          "te": "nicht angeschlossen"
+        }
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "Init-Tabelle über DCS 2A/2B gefunden (wreck scan)",
+        "Pins mit eigener Diagnose-App am Gerät gelesen",
+        "eigener Code zeichnet aufs Display (Gerätetest 19.11.2026)"
+      ],
+      "label": "Display (Auflösung, Schnittstelle, Controller)"
+    },
+    "touch": {
+      "value": {
+        "family": "Chipsea CHSC6x",
+        "bus": "Software-I²C SCL PG03 / SDA PG04",
+        "address": "0x2E",
+        "int": "PG05",
+        "reset": "PG06",
+        "report": "3 Byte: Ereignis (Bit 6/7 = 9. Bit von x/y), x, y; Controller antwortet nur bei Ereignis"
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "eigener Touch-Treiber bei angehaltener Herstellerfirmware, Gerätetest 20.11.2026"
+      ],
+      "label": "Touch-Controller (Bus, Adresse, Pins)"
+    },
+    "buttons": {
+      "value": {
+        "left_action": "PB01",
+        "right": "PG08",
+        "crown_press": "PB04 (8 s = Chip-Reset)",
+        "crown_rotation": "Drehgeber per Software auf PC06/PB07",
+        "logic": "gegen Masse, Pull-up, gedrückt = 0",
+        "vibration_motor": "PWM auf PB06"
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "Tasten-Diagnose-App, dreimal wiederholt",
+        "Port-Eingänge mit eigenem Programm gelesen"
+      ],
+      "label": "Tasten, Krone, Reset"
+    },
+    "sensors": {
+      "value": {
+        "accelerometer": "SC7A20",
+        "heart_rate": "Vcare LC09A (I²C 0x33), nur grünes Licht",
+        "interrupt_pins": "offen"
+      },
+      "status": "am-rechner-geprueft",
+      "evidence": [
+        "Treiber in der Firmware erkannt"
+      ],
+      "label": "Sensoren (Beschleunigung, Puls, ...)"
+    },
+    "factory_menu": {
+      "value": {
+        "path": "Einstellungen → Allgemein → System, dann fünfmal unten rechts tippen",
+        "shows": "Burn-in-Test, Sensoren, Tasten/Krone, Touch, MAC, Firmware-/Hardwareversion"
+      },
+      "status": "am-rechner-geprueft",
+      "evidence": [
+        "aus der Touch-Behandlung der Systemseite abgeleitet; am Gerät noch nicht geöffnet"
+      ],
+      "label": "Werkstest-/Servicemenü"
+    },
+    "app_layer": {
+      "value": {
+        "engine": "MicroQuickJS (~ES5)",
+        "package": ".oapps (tar) mit app.json, app.js, i18n, optional Handy-Teil",
+        "limits": {
+          "file_on_watch_kb": 48,
+          "ram_per_app_kb": 64,
+          "message_bytes": 200,
+          "icon": "50x50"
+        }
+      },
+      "status": "am-geraet-bestaetigt",
+      "evidence": [
+        "mehrere eigene Apps am Gerät bestätigt (Uhr, Sokoban, Geräuschmesser, Web-Apps)"
+      ],
+      "label": "Eigene App-Schicht (z. B. Skript-Apps)"
+    }
+  },
+  "notes": [
+    "Ein Build mit zwei Änderungen (Bootlogo + AOD) führte zu einem Bootloop – seitdem eine Änderung pro Build.",
+    "Ein Programm, das dauerhaft die Oberflächen-Task der Herstellerfirmware belegt, blockiert Mitteilungen, Sync und Updates; eigene Task nötig.",
+    "Herstellerinterne Adressen und Patchstellen sind bewusst nicht in diesem öffentlichen Profil."
+  ]
+}

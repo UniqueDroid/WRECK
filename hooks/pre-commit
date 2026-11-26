@@ -1,0 +1,5 @@
+#!/bin/sh
+# Aktivieren: git config core.hooksPath hooks
+# Verhindert Commits mit Herstellerdateien, Schlüsseln oder privaten Daten (LEGAL.md).
+cd "$(git rev-parse --show-toplevel)" || exit 1
+python3 -m wreck guard --staged
